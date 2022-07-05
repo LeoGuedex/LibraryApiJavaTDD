@@ -1,29 +1,30 @@
 package com.leoguedex.libraryapi.controllers;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.leoguedex.libraryapi.dtos.BookDto;
+import com.leoguedex.libraryapi.entities.Book;
+import com.leoguedex.libraryapi.services.BookService;
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/books")
 public class BookController {
 
+    @Autowired
+    BookService bookService;
+
+    @Autowired
+    ModelMapper modelMapper;
+
     @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)
-    public BookDto create() {
-
-        BookDto bookDto = BookDto.builder()
-                .id(1L)
-                .title("Titulo Livro")
-                .author("Autor")
-                .isbn("123456789")
-                .build();
-
-        return bookDto;
+    public BookDto create(@RequestBody BookDto bookDto) {
+        Book toBook = modelMapper.map(bookDto, Book.class);
+        Book bookSaved = bookService.save(toBook);
+        BookDto toBookDto = modelMapper.map(bookSaved, BookDto.class);
+        return toBookDto;
     }
 
 }

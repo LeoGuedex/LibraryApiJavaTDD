@@ -1,4 +1,4 @@
-package com.leoguedex.libraryapi.dtos;
+package com.leoguedex.libraryapi.entities;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class BookDto {
+public class Book {
 
     private Long id;
     private String title;

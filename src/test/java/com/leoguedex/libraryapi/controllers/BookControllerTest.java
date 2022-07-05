@@ -1,10 +1,16 @@
 package com.leoguedex.libraryapi.controllers;
+
+import com.leoguedex.libraryapi.entities.Book;
+import com.leoguedex.libraryapi.services.BookService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.BDDMockito;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -13,6 +19,7 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.leoguedex.libraryapi.dtos.BookDto;
 
 @WebMvcTest
 @AutoConfigureMockMvc
@@ -25,11 +32,31 @@ public class BookControllerTest {
     @Autowired
     MockMvc mockMvc;
 
+    @MockBean
+    BookService bookService;
+
     @Test
     @DisplayName("Deve criar um livro com sucesso")
     public void createBookTest() throws Exception {
         // Cenário
-        String json = new ObjectMapper().writeValueAsString(null);
+        BookDto bookDto = BookDto.builder()
+                .title("Titulo")
+                .author("Autor")
+                .isbn("123456")
+                .build();
+
+        String json = new ObjectMapper().writeValueAsString(bookDto);
+
+        Book saveBook = Book.builder()
+                .id(1L)
+                .title("Titulo")
+                .author("Autor")
+                .isbn("123456")
+                .build();
+
+        BDDMockito.given(bookService.save(Mockito.any(Book.class))).willReturn(saveBook);
+
+
 
         // Execução
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post(BOOK_API)
@@ -41,9 +68,10 @@ public class BookControllerTest {
         mockMvc.perform(request)
                 .andExpect(MockMvcResultMatchers.status().isCreated())
                 .andExpect(MockMvcResultMatchers.jsonPath("id").isNotEmpty())
-                .andExpect(MockMvcResultMatchers.jsonPath("title").value("Titulo Livro"))
-                .andExpect(MockMvcResultMatchers.jsonPath("author").value("Autor"))
-                .andExpect(MockMvcResultMatchers.jsonPath("isbn").value("123456789"));
+                .andExpect(MockMvcResultMatchers.jsonPath("id").value(1L))
+                .andExpect(MockMvcResultMatchers.jsonPath("title").value(bookDto.getTitle()))
+                .andExpect(MockMvcResultMatchers.jsonPath("author").value(bookDto.getAuthor()))
+                .andExpect(MockMvcResultMatchers.jsonPath("isbn").value(bookDto.getIsbn()));
 
     }
 
